@@ -29,9 +29,10 @@ class DatabasePersistence:
                 cursor.execute(query)
                 results = cursor.fetchall()
         
-        lists = [dict(row) for row in results]
+        lists = [dict(lst) for lst in results]
         for lst in lists:
-            lst.setdefault('todos', [])
+            todos = self._find_todos_for_list(lst['id'])
+            lst.setdefault('todos', todos)
         return lists
     
     def find_list(self, list_id):
@@ -42,20 +43,44 @@ class DatabasePersistence:
                 cursor.execute(query, (list_id,))
                 lst = dict(cursor.fetchone())
         
-        lst.setdefault('todos', [])
+        todos = self._find_todos_for_list(list_id)
+        lst.setdefault('todos', todos)
         return lst
+
+    def _find_todos_for_list(self, list_id):
+        query = 'SELECT * FROM todos WHERE list_id = %s'
+        logger.info('Executing query: %s with list_id: %s', query, list_id)
+        with self._database_connect() as connection:
+            with connection.cursor(cursor_factory=DictCursor) as cursor:
+                cursor.execute(query, (list_id,))
+                return cursor.fetchall()
 
     def find_todo(self, list_id, todo_id):
         pass
 
     def create_new_list(self, title):
-        pass
+        query = 'INSERT INTO lists (title) VALUES (%s)'
+        logger.info('Executing query: %s with title: %s', query, title)
+        with self._database_connect() as connection:
+            with connection.cursor() as cursor:
+                cursor.execute(query, (title,))
 
     def update_list_by_id(self, list_id, new_title):
-        pass
+        query = 'UPDATE lists SET title = %s WHERE id = %s'
+        logger.info('''Executing query: %s 
+            with list_id: %s 
+            and new_title: %s''', 
+        query, new_title)
+        with self._database_connect() as connection:
+            with connection.cursor() as cursor:
+                cursor.execute(query, (list_id, new_title))
 
     def delete_list(self, list_id):
-        pass
+        query = 'DELETE FROM lists WHERE id = %s'
+        logger.info('Executing query: %s with list_id: %s', query, list_id)
+        with self._database_connect() as connection:
+            with connection.cursor() as cursor:
+                cursor.execute(query, (list_id,))
 
     def create_new_todo(self, list_id, todo_title):
         pass
