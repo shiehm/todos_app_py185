@@ -129,7 +129,7 @@ class DatabasePersistence:
                 cursor.execute(query, (list_id, todo_title))
 
     def delete_todo_from_list(self, list_id, todo_id):
-        query = 'DELETE FROM todos WHERE list_id = %s AND todo_id = %s'
+        query = 'DELETE FROM todos WHERE list_id = %s AND id = %s'
         logger.info('''Executing query: %s 
             with list_id: %s
             and todo_id :%s''', 
@@ -139,7 +139,7 @@ class DatabasePersistence:
                 cursor.execute(query, (list_id, todo_id))
 
     def update_todo_status(self, list_id, todo_id, status):
-        query = 'UPDATE todos SET completed = %s WHERE list_id = %s AND todo_id = %s'
+        query = 'UPDATE todos SET completed = %s WHERE list_id = %s AND id = %s'
         logger.info('''Executing query: %s 
             with completed: %s
             and list_id: %s
